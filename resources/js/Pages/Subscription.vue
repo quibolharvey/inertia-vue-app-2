@@ -1,40 +1,50 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
-// Form variables
+// Variables for form
 const fullName = ref('');
 const email = ref('');
 const subscriptionType = ref('');
-const applyLifetime = ref(false);
+const applyMembership = ref(false);
 
-// Price logic
-const prices = {
-    daily: 150,
-    monthly: 900,
-    yearly: 9000,
-};
 
-const finalPrice = computed(() => {
-    if (!subscriptionType.value) return 0;
-    let base = prices[subscriptionType.value];
-    return applyLifetime.value ? Math.round(base * 0.85) : base;
-});
+// Handle form submission
+// const handleSubmit = () => {
+//     // Logic for handling form submission
+//     console.log('Form submitted:', { fullName: fullName.value, email: email.value, subscriptionType: subscriptionType.value });
+// };
 
-// Submit handler
 const handleSubmit = () => {
-    router.post(route('subscription.store'), {
-        full_name: fullName.value,
+    let basePrice = 0;
+    switch (subscriptionType.value) {
+        case 'daily':
+            basePrice = 150;
+            break;
+        case 'monthly':
+            basePrice = 900;
+            break;
+        case 'yearly':
+            basePrice = 9000;
+            break;
+    }
+
+    const membershipFee = applyMembership.value ? 400 : 0;
+    const total = basePrice + membershipFee;
+
+    console.log('Form submitted:', {
+        fullName: fullName.value,
         email: email.value,
-        subscription_type: subscriptionType.value,
-        lifetime: applyLifetime.value,
-        price: finalPrice.value,
+        subscriptionType: subscriptionType.value,
+        hasMembership: applyMembership.value,
+        amount: total,
     });
+
+    // You can now submit this data via router.post() to your backend.
 };
+
 </script>
-
-
 
 <template>
     <Head title="Subscription" />
@@ -63,6 +73,18 @@ const handleSubmit = () => {
                                 />
                             </div>
 
+                            <!-- Email -->
+                            <div class="mb-4">
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    v-model="email"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    required
+                                />
+                            </div>
+
                             <!-- Subscription Type -->
                             <div class="mb-4">
                                 <label for="subscriptionType" class="block text-sm font-medium text-gray-700">Subscription Type</label>
@@ -79,28 +101,16 @@ const handleSubmit = () => {
                                 </select>
                             </div>
 
-                            <!-- Lifetime Checkbox -->
-                            <div class="mb-4 flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="lifetime"
-                                    v-model="applyLifetime"
-                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                />
-                                <label for="lifetime" class="text-sm text-gray-700">Apply lifetime membership</label>
-
-                                <!-- Hoverable tooltip -->
-                                <div class="relative group">
-                                    <span class="text-indigo-500 cursor-pointer text-lg font-bold">?</span>
-                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 rounded-md bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                        Apply lifetime membership with 15% discount.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Price Display -->
-                            <div class="mb-4 text-sm text-gray-700">
-                                <span v-if="subscriptionType">Total Price: ₱{{ finalPrice }}</span>
+                            <!-- Membership Checkbox -->
+                            <div class="mb-4">
+                                <label class="inline-flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        v-model="applyMembership"
+                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                    />
+                                    <span class="ml-2 text-sm text-gray-700">Apply Membership? ₱400</span>
+                                </label>
                             </div>
 
                             <!-- Submit Button -->
@@ -119,4 +129,3 @@ const handleSubmit = () => {
         </div>
     </AuthenticatedLayout>
 </template>
-

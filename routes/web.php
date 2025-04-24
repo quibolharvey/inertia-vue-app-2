@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SubscriptionController;
-use App\Models\Subscription;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,20 +28,13 @@ Route::get('/subscription', function () {
     return Inertia::render('Subscription');
 })->name('subscription');
 
-// HANDLES the form submission
-Route::post('/subscription', [SubscriptionController::class, 'store'])->name('subscription.store');
-
 Route::get('/subscription-details', function () {
     return Inertia::render('SubscriptionDetails');
 })->name('subscription-details');
 
 Route::get('/my-subscription-details', function () {
-    $subscription = Subscription::where('user_id', auth()->id())->first();
-    return Inertia::render('MySubscriptionDetails', [
-        'subscription' => $subscription,
-    ]);
+    return Inertia::render('MySubscriptionDetails');
 })->name('my-subscription-details');
-
 
 Route::get('/gym-members', function () {
     return Inertia::render('GymMembers');
